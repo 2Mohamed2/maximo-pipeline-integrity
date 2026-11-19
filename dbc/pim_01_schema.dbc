@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script SYSTEM "script.dtd">
+<!--
+  Pipeline Integrity Management for Maximo Manage - part 1 of 3: data model.
+  Every row is guarded (inserted only if missing): safe to re-run. Restart Manage after install so
+  menus, grants and end points are reloaded.
+-->
+<script author="Mohamed Chihaoui" scriptname="pim_01_schema_1.0.0">
+  <description>PIM: domains, DIG and INSP work types, objects and relationships</description>
+  <statements>
+    <specify_synonym_domain domainid="PIMCLASS" description="ASME B31.8 class location" maxtype="UPPER" length="1" overwrite="true" internal="false">
+      <synonymvalueinfo value="1" maxvalue="1" defaults="true" description="Class 1 - 10 or fewer buildings (F 0.72)"/>
+      <synonymvalueinfo value="2" maxvalue="2" defaults="true" description="Class 2 - 11 to 45 buildings (F 0.60)"/>
+      <synonymvalueinfo value="3" maxvalue="3" defaults="true" description="Class 3 - 46 or more buildings (F 0.50)"/>
+      <synonymvalueinfo value="4" maxvalue="4" defaults="true" description="Class 4 - multi-storey buildings prevalent (F 0.40)"/>
+    </specify_synonym_domain>
+    <specify_synonym_domain domainid="PIMTHREAT" description="ASME B31.8S threat category" maxtype="UPPER" length="8" overwrite="true" internal="false">
+      <synonymvalueinfo value="EXTCORR" maxvalue="EXTCORR" defaults="true" description="External corrosion (time-dependent)"/>
+      <synonymvalueinfo value="INTCORR" maxvalue="INTCORR" defaults="true" description="Internal corrosion (time-dependent)"/>
+      <synonymvalueinfo value="SCC" maxvalue="SCC" defaults="true" description="Stress corrosion cracking (time-dependent)"/>
+      <synonymvalueinfo value="MFG" maxvalue="MFG" defaults="true" description="Manufacturing defects (stable)"/>
+      <synonymvalueinfo value="CONSTR" maxvalue="CONSTR" defaults="true" description="Welding / fabrication / construction (stable)"/>
+      <synonymvalueinfo value="EQUIP" maxvalue="EQUIP" defaults="true" description="Equipment (stable)"/>
+      <synonymvalueinfo value="TPD" maxvalue="TPD" defaults="true" description="Third-party / mechanical damage (time-independent)"/>
+      <synonymvalueinfo value="INCOPS" maxvalue="INCOPS" defaults="true" description="Incorrect operations (time-independent)"/>
+      <synonymvalueinfo value="WEATHER" maxvalue="WEATHER" defaults="true" description="Weather and outside force (time-independent)"/>
+    </specify_synonym_domain>
+    <specify_synonym_domain domainid="PIMSUSC" description="Susceptibility of a pipeline segment to a threat" maxtype="UPPER" length="6" overwrite="true" internal="false">
+      <synonymvalueinfo value="HIGH" maxvalue="HIGH" defaults="true" description="High"/>
+      <synonymvalueinfo value="MEDIUM" maxvalue="MEDIUM" defaults="true" description="Medium"/>
+      <synonymvalueinfo value="LOW" maxvalue="LOW" defaults="true" description="Low"/>
+      <synonymvalueinfo value="NONE" maxvalue="NONE" defaults="true" description="None / not applicable"/>
+    </specify_synonym_domain>
+    <specify_synonym_domain domainid="PIMFTYPE" description="ILI feature type" maxtype="UPPER" length="10" overwrite="true" internal="false">
+      <synonymvalueinfo value="METALLOSS" maxvalue="METALLOSS" defaults="true" description="Metal loss (corrosion)"/>
+      <synonymvalueinfo value="DENT" maxvalue="DENT" defaults="true" description="Plain dent"/>
+      <synonymvalueinfo value="DENTML" maxvalue="DENTML" defaults="true" description="Dent with metal loss"/>
+      <synonymvalueinfo value="CRACK" maxvalue="CRACK" defaults="true" description="Crack-like feature"/>
+    </specify_synonym_domain>
+    <specify_synonym_domain domainid="PIMSURF" description="Feature surface" maxtype="UPPER" length="3" overwrite="true" internal="false">
+      <synonymvalueinfo value="EXT" maxvalue="EXT" defaults="true" description="External"/>
+      <synonymvalueinfo value="INT" maxvalue="INT" defaults="true" description="Internal"/>
+    </specify_synonym_domain>
+    <specify_synonym_domain domainid="PIMRESP" description="ASME B31.8S response category" maxtype="UPPER" length="10" overwrite="true" internal="false">
+      <synonymvalueinfo value="IMMEDIATE" maxvalue="IMMEDIATE" defaults="true" description="Immediate - reduce pressure and repair on discovery"/>
+      <synonymvalueinfo value="SCHEDULED" maxvalue="SCHEDULED" defaults="true" description="Scheduled - repair within one year"/>
+      <synonymvalueinfo value="MONITORED" maxvalue="MONITORED" defaults="true" description="Monitored - reassess at the next interval"/>
+      <synonymvalueinfo value="REPAIRED" maxvalue="REPAIRED" defaults="true" description="Repaired"/>
+    </specify_synonym_domain>
+    <specify_synonym_domain domainid="PIMFSTAT" description="ILI feature status" maxtype="UPPER" length="8" overwrite="true" internal="false">
+      <synonymvalueinfo value="OPEN" maxvalue="OPEN" defaults="true" description="Open"/>
+      <synonymvalueinfo value="REPAIRED" maxvalue="REPAIRED" defaults="true" description="Repaired"/>
+    </specify_synonym_domain>
+    <specify_synonym_domain domainid="PIMENV" description="Environmental sensitivity along the segment" maxtype="UPPER" length="6" overwrite="true" internal="false">
+      <synonymvalueinfo value="LOW" maxvalue="LOW" defaults="true" description="Low (category A)"/>
+      <synonymvalueinfo value="MEDIUM" maxvalue="MEDIUM" defaults="true" description="Medium (category C)"/>
+      <synonymvalueinfo value="HIGH" maxvalue="HIGH" defaults="true" description="High (category D)"/>
+    </specify_synonym_domain>
+    <specify_synonym_domain domainid="PIMCOF" description="Consequence of failure category" maxtype="UPPER" length="1" overwrite="true" internal="false">
+      <synonymvalueinfo value="A" maxvalue="A" defaults="true" description="A"/>
+      <synonymvalueinfo value="B" maxvalue="B" defaults="true" description="B"/>
+      <synonymvalueinfo value="C" maxvalue="C" defaults="true" description="C"/>
+      <synonymvalueinfo value="D" maxvalue="D" defaults="true" description="D"/>
+      <synonymvalueinfo value="E" maxvalue="E" defaults="true" description="E"/>
+    </specify_synonym_domain>
+    <specify_synonym_domain domainid="PIMRISK" description="Pipeline segment risk level" maxtype="UPPER" length="8" overwrite="true" internal="false">
+      <synonymvalueinfo value="LOW" maxvalue="LOW" defaults="true" description="Low"/>
+      <synonymvalueinfo value="MEDIUM" maxvalue="MEDIUM" defaults="true" description="Medium"/>
+      <synonymvalueinfo value="MEDHIGH" maxvalue="MEDHIGH" defaults="true" description="Medium-high"/>
+      <synonymvalueinfo value="HIGH" maxvalue="HIGH" defaults="true" description="High"/>
+    </specify_synonym_domain>
+    <specify_synonym_domain domainid="PIMSTATUS" description="Pipeline integrity assessment status" maxtype="UPPER" length="10" overwrite="true" internal="false">
+      <synonymvalueinfo value="DRAFT" maxvalue="DRAFT" defaults="true" description="Draft - being prepared"/>
+      <synonymvalueinfo value="APPR" maxvalue="APPR" defaults="true" description="Approved - drives digs and the reassessment"/>
+      <synonymvalueinfo value="SUPERSEDED" maxvalue="SUPERSEDED" defaults="true" description="Superseded by a newer approved assessment"/>
+    </specify_synonym_domain>
+    <define_table object="PIMASSESS" description="Integrity assessment of one pipeline segment" service="CUSTAPP" classname="psdi.mbo.custapp.CustomMboSet" type="site" persistent="true" primarykey="ASSESSNUM,SITEID" unique_column="PIMASSESSID" mainobject="true">
+      <attrdef attribute="PIMASSESSID" maxtype="BIGINT" required="true" title="Unique id" remarks="Unique id"/>
+      <attrdef attribute="ASSESSNUM" maxtype="UPPER" length="12" required="true" title="Assessment" remarks="Pipeline integrity assessment number"/>
+      <attrdef attribute="SITEID" maxtype="UPPER" length="8" required="true" title="Site" remarks="Site" sameasobject="SITE" sameasattribute="SITEID"/>
+      <attrdef attribute="ORGID" maxtype="UPPER" length="8" required="true" title="Organization" remarks="Organization" sameasobject="ORGANIZATION" sameasattribute="ORGID"/>
+      <attrdef attribute="DESCRIPTION" maxtype="ALN" length="100" required="false" title="Description" remarks="Description"/>
+      <attrdef attribute="ASSETNUM" maxtype="UPPER" length="25" required="true" title="Segment" remarks="Pipeline segment asset" sameasobject="ASSET" sameasattribute="ASSETNUM"/>
+      <attrdef attribute="PIPELINE" maxtype="ALN" length="40" required="false" title="Pipeline" remarks="Pipeline"/>
+      <attrdef attribute="KPSTART" maxtype="DECIMAL" length="10" scale="3" required="false" title="Start KP (km)" remarks="Start KP (km)"/>
+      <attrdef attribute="KPEND" maxtype="DECIMAL" length="10" scale="3" required="false" title="End KP (km)" remarks="End KP (km)"/>
+      <attrdef attribute="INSTALLDATE" maxtype="DATE" required="false" title="In service since" remarks="In service since"/>
+      <attrdef attribute="COATING" maxtype="ALN" length="40" required="false" title="Coating" remarks="External coating system, e.g. 3-layer PE"/>
+      <attrdef attribute="STATUS" maxtype="UPPER" length="10" required="true" title="Status" remarks="Status" domain="PIMSTATUS" defaultvalue="DRAFT"/>
+      <attrdef attribute="ASSESSDATE" maxtype="DATE" required="false" title="Assessment date" remarks="Assessment date"/>
+      <attrdef attribute="ASSESSOR" maxtype="UPPER" length="30" required="false" title="Assessed by" remarks="Integrity engineer" sameasobject="PERSON" sameasattribute="PERSONID"/>
+      <attrdef attribute="CLASSLOC" maxtype="UPPER" length="1" required="false" title="Class location" remarks="Class location" domain="PIMCLASS" defaultvalue="1"/>
+      <attrdef attribute="HCA" maxtype="YORN" required="false" title="High consequence area" remarks="High consequence area" defaultvalue="0"/>
+      <attrdef attribute="OD" maxtype="DECIMAL" length="8" scale="1" required="false" title="Outside diameter (mm)" remarks="Outside diameter (mm)"/>
+      <attrdef attribute="WT" maxtype="DECIMAL" length="6" scale="2" required="false" title="Wall thickness (mm)" remarks="Wall thickness (mm)"/>
+      <attrdef attribute="GRADE" maxtype="ALN" length="20" required="false" title="Line pipe grade" remarks="e.g. API 5L X60"/>
+      <attrdef attribute="SMYS" maxtype="DECIMAL" length="8" scale="1" required="false" title="SMYS (MPa)" remarks="Specified minimum yield strength"/>
+      <attrdef attribute="MAOP" maxtype="DECIMAL" length="8" scale="1" required="false" title="MAOP (bar)" remarks="Maximum allowable operating pressure"/>
+      <attrdef attribute="DESIGNF" maxtype="DECIMAL" length="4" scale="2" required="false" title="Design factor F" remarks="From the class location (ASME B31.8)"/>
+      <attrdef attribute="ILIDATE" maxtype="DATE" required="false" title="ILI run date" remarks="ILI run date"/>
+      <attrdef attribute="ILIREPORTDATE" maxtype="DATE" required="false" title="ILI report received" remarks="Discovery date: response times start here"/>
+      <attrdef attribute="ILITOOL" maxtype="ALN" length="40" required="false" title="ILI tool" remarks="e.g. high-resolution MFL + caliper"/>
+      <attrdef attribute="PREVILIDATE" maxtype="DATE" required="false" title="Previous ILI run" remarks="Used for feature-matched corrosion growth"/>
+      <attrdef attribute="DEFAULTCGR" maxtype="DECIMAL" length="6" scale="3" required="false" title="Default growth (mm/y)" remarks="Depth growth for features without a match" defaultvalue="0.200"/>
+      <attrdef attribute="SAFETYF" maxtype="DECIMAL" length="4" scale="2" required="false" title="Safety factor on Pf" remarks="Safe pressure = Pf x factor (defaults to F)"/>
+      <attrdef attribute="NUMANOM" maxtype="INTEGER" required="false" title="Features listed" remarks="Features listed"/>
+      <attrdef attribute="NUMIMMED" maxtype="INTEGER" required="false" title="Immediate" remarks="Immediate"/>
+      <attrdef attribute="NUMSCHED" maxtype="INTEGER" required="false" title="Scheduled" remarks="Scheduled"/>
+      <attrdef attribute="NUMMON" maxtype="INTEGER" required="false" title="Monitored" remarks="Monitored"/>
+      <attrdef attribute="NUMREPAIRED" maxtype="INTEGER" required="false" title="Repaired" remarks="Repaired"/>
+      <attrdef attribute="HOOPPCT" maxtype="DECIMAL" length="6" scale="1" required="false" title="Hoop stress at MAOP (% SMYS)" remarks="Hoop stress at MAOP (% SMYS)"/>
+      <attrdef attribute="MAXERF" maxtype="DECIMAL" length="6" scale="3" required="false" title="Worst ERF" remarks="Worst ERF"/>
+      <attrdef attribute="MINPFRATIO" maxtype="DECIMAL" length="6" scale="3" required="false" title="Lowest Pf/MAOP (monitored)" remarks="Lowest Pf/MAOP (monitored)"/>
+      <attrdef attribute="MINLIFE" maxtype="DECIMAL" length="6" scale="1" required="false" title="Shortest remaining life (y)" remarks="Shortest remaining life (y)"/>
+      <attrdef attribute="POFCAT" maxtype="INTEGER" required="false" title="Likelihood category (1-5)" remarks="Likelihood category (1-5)"/>
+      <attrdef attribute="DRIVER" maxtype="UPPER" length="8" required="false" title="Governing threat" remarks="Governing threat" domain="PIMTHREAT"/>
+      <attrdef attribute="INTERACT" maxtype="ALN" length="60" required="false" title="Interacting threats" remarks="Interacting threats"/>
+      <attrdef attribute="PIRM" maxtype="DECIMAL" length="8" scale="1" required="false" title="Potential impact radius (m)" remarks="Potential impact radius (m)"/>
+      <attrdef attribute="BUILDINGS" maxtype="INTEGER" required="false" title="Buildings inside PIR" remarks="Buildings inside PIR" defaultvalue="0"/>
+      <attrdef attribute="IDSITE" maxtype="YORN" required="false" title="Identified site inside PIR" remarks="School, hospital, assembly area" defaultvalue="0"/>
+      <attrdef attribute="COFPEOPLE" maxtype="UPPER" length="1" required="false" title="People CoF" remarks="People CoF" domain="PIMCOF"/>
+      <attrdef attribute="ENVSENS" maxtype="UPPER" length="6" required="false" title="Environmental sensitivity" remarks="Environmental sensitivity" domain="PIMENV" defaultvalue="LOW"/>
+      <attrdef attribute="COFENV" maxtype="UPPER" length="1" required="false" title="Environment CoF" remarks="Environment CoF" domain="PIMCOF"/>
+      <attrdef attribute="REPAIRCOST" maxtype="DECIMAL" length="14" scale="2" required="false" title="Repair cost (USD)" remarks="Repair cost (USD)"/>
+      <attrdef attribute="OUTAGEDAYS" maxtype="DECIMAL" length="8" scale="1" required="false" title="Supply outage (days)" remarks="Supply outage (days)"/>
+      <attrdef attribute="LOSSPERDAY" maxtype="DECIMAL" length="14" scale="2" required="false" title="Lost throughput per day (USD)" remarks="Lost throughput per day (USD)"/>
+      <attrdef attribute="ENVCOST" maxtype="DECIMAL" length="14" scale="2" required="false" title="Environmental cost (USD)" remarks="Environmental cost (USD)"/>
+      <attrdef attribute="FINCOST" maxtype="DECIMAL" length="14" scale="2" required="false" title="Financial consequence (USD)" remarks="Financial consequence (USD)"/>
+      <attrdef attribute="COFFIN" maxtype="UPPER" length="1" required="false" title="Financial CoF" remarks="Financial CoF" domain="PIMCOF"/>
+      <attrdef attribute="COFCAT" maxtype="UPPER" length="1" required="false" title="CoF category" remarks="CoF category" domain="PIMCOF"/>
+      <attrdef attribute="RISKCELL" maxtype="UPPER" length="2" required="false" title="Risk cell" remarks="Risk cell"/>
+      <attrdef attribute="RISK" maxtype="UPPER" length="8" required="false" title="Risk" remarks="Risk" domain="PIMRISK"/>
+      <attrdef attribute="TABLEINT" maxtype="DECIMAL" length="6" scale="1" required="false" title="B31.8S Table 3 interval (y)" remarks="B31.8S Table 3 interval (y)"/>
+      <attrdef attribute="MAXINTERVAL" maxtype="DECIMAL" length="6" scale="1" required="false" title="Maximum interval (y)" remarks="Maximum interval (y)" defaultvalue="10"/>
+      <attrdef attribute="HCAMAX" maxtype="DECIMAL" length="6" scale="1" required="false" title="HCA maximum interval (y)" remarks="Regulatory cap for HCA segments (49 CFR 192.939: 7 years); set your regulator&#x27;s value" defaultvalue="7"/>
+      <attrdef attribute="INTERVALBASIS" maxtype="ALN" length="100" required="false" title="Interval set by" remarks="Interval set by"/>
+      <attrdef attribute="NEXTASSESSDATE" maxtype="DATE" required="false" title="Next assessment due" remarks="Next assessment due"/>
+      <attrdef attribute="ASSESSMETHOD" maxtype="ALN" length="100" required="false" title="Assessment method" remarks="Assessment method"/>
+      <attrdef attribute="WONUM" maxtype="UPPER" length="25" required="false" title="Reassessment work order" remarks="Reassessment work order" sameasobject="WORKORDER" sameasattribute="WONUM"/>
+      <attrdef attribute="CALCNOTE" maxtype="ALN" length="1000" required="false" title="Calculation trace" remarks="Calculation trace"/>
+    </define_table>
+    <define_table object="PIMTHREAT" description="B31.8S threat scored in a pipeline integrity assessment" service="CUSTAPP" classname="psdi.mbo.custapp.CustomMboSet" type="site" persistent="true" primarykey="ASSESSNUM,THREAT,SITEID" unique_column="PIMTHREATID" mainobject="false">
+      <attrdef attribute="PIMTHREATID" maxtype="BIGINT" required="true" title="Unique id" remarks="Unique id"/>
+      <attrdef attribute="ASSESSNUM" maxtype="UPPER" length="12" required="true" title="Assessment" remarks="Assessment" sameasobject="PIMASSESS" sameasattribute="ASSESSNUM"/>
+      <attrdef attribute="SITEID" maxtype="UPPER" length="8" required="true" title="Site" remarks="Site" sameasobject="SITE" sameasattribute="SITEID"/>
+      <attrdef attribute="ORGID" maxtype="UPPER" length="8" required="true" title="Organization" remarks="Organization" sameasobject="ORGANIZATION" sameasattribute="ORGID"/>
+      <attrdef attribute="THREAT" maxtype="UPPER" length="8" required="true" title="Threat" remarks="Threat" domain="PIMTHREAT"/>
+      <attrdef attribute="SUSCEPT" maxtype="UPPER" length="6" required="true" title="Susceptibility" remarks="Susceptibility" domain="PIMSUSC" defaultvalue="LOW"/>
+      <attrdef attribute="MITIGATED" maxtype="YORN" required="false" title="Mitigated" remarks="A preventive measure is in place and verified" defaultvalue="0"/>
+      <attrdef attribute="SCORE" maxtype="INTEGER" required="false" title="Likelihood score" remarks="Likelihood score"/>
+      <attrdef attribute="RECMETHOD" maxtype="ALN" length="100" required="false" title="Assessment / prevention" remarks="Assessment / prevention"/>
+      <attrdef attribute="NOTES" maxtype="ALN" length="250" required="false" title="Basis / notes" remarks="Basis / notes"/>
+    </define_table>
+    <define_table object="PIMANOM" description="ILI feature evaluated in a pipeline integrity assessment" service="CUSTAPP" classname="psdi.mbo.custapp.CustomMboSet" type="site" persistent="true" primarykey="ASSESSNUM,FEATURENUM,SITEID" unique_column="PIMANOMID" mainobject="false">
+      <attrdef attribute="PIMANOMID" maxtype="BIGINT" required="true" title="Unique id" remarks="Unique id"/>
+      <attrdef attribute="ASSESSNUM" maxtype="UPPER" length="12" required="true" title="Assessment" remarks="Assessment" sameasobject="PIMASSESS" sameasattribute="ASSESSNUM"/>
+      <attrdef attribute="SITEID" maxtype="UPPER" length="8" required="true" title="Site" remarks="Site" sameasobject="SITE" sameasattribute="SITEID"/>
+      <attrdef attribute="ORGID" maxtype="UPPER" length="8" required="true" title="Organization" remarks="Organization" sameasobject="ORGANIZATION" sameasattribute="ORGID"/>
+      <attrdef attribute="FEATURENUM" maxtype="UPPER" length="12" required="true" title="Feature" remarks="ILI feature number"/>
+      <attrdef attribute="KP" maxtype="DECIMAL" length="10" scale="3" required="false" title="KP (km)" remarks="KP (km)"/>
+      <attrdef attribute="CLOCK" maxtype="ALN" length="5" required="false" title="Clock" remarks="Clock"/>
+      <attrdef attribute="FTYPE" maxtype="UPPER" length="10" required="true" title="Type" remarks="Type" domain="PIMFTYPE" defaultvalue="METALLOSS"/>
+      <attrdef attribute="SURFACE" maxtype="UPPER" length="3" required="false" title="Surface" remarks="Surface" domain="PIMSURF" defaultvalue="EXT"/>
+      <attrdef attribute="DEPTHPCT" maxtype="DECIMAL" length="5" scale="1" required="false" title="Depth (% wt)" remarks="Depth (% wt)"/>
+      <attrdef attribute="LENGTH" maxtype="DECIMAL" length="8" scale="1" required="false" title="Length (mm)" remarks="Length (mm)"/>
+      <attrdef attribute="WIDTH" maxtype="DECIMAL" length="8" scale="1" required="false" title="Width (mm)" remarks="Width (mm)"/>
+      <attrdef attribute="DENTPCT" maxtype="DECIMAL" length="5" scale="1" required="false" title="Dent depth (% OD)" remarks="Dent depth (% OD)"/>
+      <attrdef attribute="PREVDEPTHPCT" maxtype="DECIMAL" length="5" scale="1" required="false" title="Previous ILI depth (% wt)" remarks="Previous ILI depth (% wt)"/>
+      <attrdef attribute="GROWTH" maxtype="DECIMAL" length="6" scale="3" required="false" title="Growth (mm/y)" remarks="Growth (mm/y)"/>
+      <attrdef attribute="PF" maxtype="DECIMAL" length="8" scale="1" required="false" title="Failure pressure Pf (bar)" remarks="Failure pressure Pf (bar)"/>
+      <attrdef attribute="PSAFE" maxtype="DECIMAL" length="8" scale="1" required="false" title="Safe pressure (bar)" remarks="Safe pressure (bar)"/>
+      <attrdef attribute="ERF" maxtype="DECIMAL" length="6" scale="3" required="false" title="ERF" remarks="ERF"/>
+      <attrdef attribute="PFRATIO" maxtype="DECIMAL" length="6" scale="3" required="false" title="Pf/MAOP" remarks="Pf/MAOP"/>
+      <attrdef attribute="RESPONSE" maxtype="UPPER" length="10" required="false" title="Response" remarks="Response" domain="PIMRESP"/>
+      <attrdef attribute="REMLIFE" maxtype="DECIMAL" length="6" scale="1" required="false" title="Remaining life (y)" remarks="Remaining life (y)"/>
+      <attrdef attribute="DUEDATE" maxtype="DATE" required="false" title="Respond by" remarks="Respond by"/>
+      <attrdef attribute="WONUM" maxtype="UPPER" length="25" required="false" title="Dig work order" remarks="Dig work order" sameasobject="WORKORDER" sameasattribute="WONUM"/>
+      <attrdef attribute="FSTATUS" maxtype="UPPER" length="8" required="false" title="Feature status" remarks="Feature status" domain="PIMFSTAT" defaultvalue="OPEN"/>
+      <attrdef attribute="REPAIRDATE" maxtype="DATE" required="false" title="Repair date" remarks="Repair date"/>
+      <attrdef attribute="REPAIRTYPE" maxtype="ALN" length="40" required="false" title="Repair" remarks="e.g. Type B sleeve, composite wrap, cut-out"/>
+    </define_table>
+    <create_relationship parent="PIMASSESS" name="ASSET" child="ASSET" whereclause="assetnum=:assetnum and siteid=:siteid" remarks="The assessed segment"/>
+    <create_relationship parent="PIMASSESS" name="THREATS" child="PIMTHREAT" whereclause="assessnum=:assessnum and siteid=:siteid" remarks="Threats of the assessment"/>
+    <create_relationship parent="PIMASSESS" name="ANOMALIES" child="PIMANOM" whereclause="assessnum=:assessnum and siteid=:siteid" remarks="ILI features of the assessment"/>
+    <create_relationship parent="PIMASSESS" name="PIMWO" child="WORKORDER" whereclause="assetnum=:assetnum and siteid=:siteid and worktype in (&#x27;DIG&#x27;,&#x27;INSP&#x27;)" remarks="Dig and reassessment work orders of the segment"/>
+    <create_relationship parent="PIMASSESS" name="HISTORY" child="PIMASSESS" whereclause="assetnum=:assetnum and siteid=:siteid and assessnum&lt;&gt;:assessnum" remarks="Other assessments of the same segment"/>
+    <create_relationship parent="ASSET" name="PIMASSESS" child="PIMASSESS" whereclause="assetnum=:assetnum and siteid=:siteid" remarks="Integrity assessments of the segment"/>
+    <freeform description="DIG and INSP work types, PIMASSESSNUM autokey">
+      <sql target="sqlserver"><![CDATA[insert into worktype (worktype, wtypedesc, promptfail, promptdown, orgid, woclass, worktypeid, type, keeptaskstatushist, contentuid, ahcondassess) select 'DIG', 'Integrity dig and repair', 0, 0, o.orgid, 'WORKORDER', next value for worktypeseq, 'NONE', 1, 'PIMDIG' + o.orgid, 0 from organization o where 1=1 and not exists (select 1 from worktype w where w. worktype='DIG' and w.orgid=o.orgid)]]></sql>
+      <sql target="sqlserver"><![CDATA[insert into worktype (worktype, wtypedesc, promptfail, promptdown, orgid, woclass, worktypeid, type, keeptaskstatushist, contentuid, ahcondassess) select 'INSP', 'Inspection', 0, 0, o.orgid, 'WORKORDER', next value for worktypeseq, 'NONE', 1, 'PIMINSP' + o.orgid, 0 from organization o where 1=1 and not exists (select 1 from worktype w where w. worktype='INSP' and w.orgid=o.orgid)]]></sql>
+      <sql target="sqlserver"><![CDATA[insert into autokey (prefix, seed, orgid, siteid, autokeyname, setid, langcode, autokeyid) select 'PIM-', 1001, o.orgid, null, 'PIMASSESSNUM', null, 'EN', next value for autokeyseq from organization o where 1=1 and not exists (select 1 from autokey k where k. autokeyname='PIMASSESSNUM' and k.orgid=o.orgid)]]></sql>
+      <sql target="sqlserver"><![CDATA[update maxattribute set autokeyname='PIMASSESSNUM', defaultvalue='&AUTOKEY&' where objectname='PIMASSESS' and attributename='ASSESSNUM']]></sql>
+      <sql target="sqlserver"><![CDATA[update maxattributecfg set autokeyname='PIMASSESSNUM', defaultvalue='&AUTOKEY&' where objectname='PIMASSESS' and attributename='ASSESSNUM']]></sql>
+      <sql target="oracle"><![CDATA[insert into worktype (worktype, wtypedesc, promptfail, promptdown, orgid, woclass, worktypeid, type, keeptaskstatushist, contentuid, ahcondassess) select 'DIG', 'Integrity dig and repair', 0, 0, o.orgid, 'WORKORDER', worktypeseq.nextval, 'NONE', 1, 'PIMDIG' || o.orgid, 0 from organization o where 1=1 and not exists (select 1 from worktype w where w. worktype='DIG' and w.orgid=o.orgid)]]></sql>
+      <sql target="oracle"><![CDATA[insert into worktype (worktype, wtypedesc, promptfail, promptdown, orgid, woclass, worktypeid, type, keeptaskstatushist, contentuid, ahcondassess) select 'INSP', 'Inspection', 0, 0, o.orgid, 'WORKORDER', worktypeseq.nextval, 'NONE', 1, 'PIMINSP' || o.orgid, 0 from organization o where 1=1 and not exists (select 1 from worktype w where w. worktype='INSP' and w.orgid=o.orgid)]]></sql>
+      <sql target="oracle"><![CDATA[insert into autokey (prefix, seed, orgid, siteid, autokeyname, setid, langcode, autokeyid) select 'PIM-', 1001, o.orgid, null, 'PIMASSESSNUM', null, 'EN', autokeyseq.nextval from organization o where 1=1 and not exists (select 1 from autokey k where k. autokeyname='PIMASSESSNUM' and k.orgid=o.orgid)]]></sql>
+      <sql target="oracle"><![CDATA[update maxattribute set autokeyname='PIMASSESSNUM', defaultvalue='&AUTOKEY&' where objectname='PIMASSESS' and attributename='ASSESSNUM']]></sql>
+      <sql target="oracle"><![CDATA[update maxattributecfg set autokeyname='PIMASSESSNUM', defaultvalue='&AUTOKEY&' where objectname='PIMASSESS' and attributename='ASSESSNUM']]></sql>
+      <sql target="db2"><![CDATA[insert into worktype (worktype, wtypedesc, promptfail, promptdown, orgid, woclass, worktypeid, type, keeptaskstatushist, contentuid, ahcondassess) select 'DIG', 'Integrity dig and repair', 0, 0, o.orgid, 'WORKORDER', nextval for worktypeseq, 'NONE', 1, 'PIMDIG' || o.orgid, 0 from organization o where 1=1 and not exists (select 1 from worktype w where w. worktype='DIG' and w.orgid=o.orgid)]]></sql>
+      <sql target="db2"><![CDATA[insert into worktype (worktype, wtypedesc, promptfail, promptdown, orgid, woclass, worktypeid, type, keeptaskstatushist, contentuid, ahcondassess) select 'INSP', 'Inspection', 0, 0, o.orgid, 'WORKORDER', nextval for worktypeseq, 'NONE', 1, 'PIMINSP' || o.orgid, 0 from organization o where 1=1 and not exists (select 1 from worktype w where w. worktype='INSP' and w.orgid=o.orgid)]]></sql>
+      <sql target="db2"><![CDATA[insert into autokey (prefix, seed, orgid, siteid, autokeyname, setid, langcode, autokeyid) select 'PIM-', 1001, o.orgid, null, 'PIMASSESSNUM', null, 'EN', nextval for autokeyseq from organization o where 1=1 and not exists (select 1 from autokey k where k. autokeyname='PIMASSESSNUM' and k.orgid=o.orgid)]]></sql>
+      <sql target="db2"><![CDATA[update maxattribute set autokeyname='PIMASSESSNUM', defaultvalue='&AUTOKEY&' where objectname='PIMASSESS' and attributename='ASSESSNUM']]></sql>
+      <sql target="db2"><![CDATA[update maxattributecfg set autokeyname='PIMASSESSNUM', defaultvalue='&AUTOKEY&' where objectname='PIMASSESS' and attributename='ASSESSNUM']]></sql>
+    </freeform>
+  </statements>
+</script>
